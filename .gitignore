@@ -1,6 +1,10 @@
 # build output
 build/
 
+# SDK build output (dotnet build); build.ps1 also skips these when globbing sources
+obj/
+bin/
+
 # developer scratch
 *.user
 *.suo

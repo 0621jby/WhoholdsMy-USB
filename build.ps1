@@ -53,7 +53,14 @@ $opt = if ($Configuration -eq 'Release') { '/optimize+' } else { '/optimize-' }
 
 function Get-Sources([string]$project) {
     $dir = Join-Path $root (Join-Path 'src' $project)
-    $files = @(Get-ChildItem -Path $dir -Recurse -Filter *.cs | Select-Object -ExpandProperty FullName)
+    # Never compile generated files: if someone ran `dotnet build` first, the SDK
+    # leaves obj\ and bin\ behind, and its generated assembly attributes collide
+    # with ours (CS0579). The in-box route must stay independent of that.
+    $files = @(
+        Get-ChildItem -Path $dir -Recurse -Filter *.cs |
+            Where-Object { $_.FullName -notmatch '\\obj\\' -and $_.FullName -notmatch '\\bin\\' } |
+            Select-Object -ExpandProperty FullName
+    )
     if ($files.Count -eq 0) { throw "No sources found under src/$project." }
     return $files
 }
