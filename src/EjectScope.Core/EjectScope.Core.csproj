@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <!-- 源码必须同时能被系统自带 csc.exe（C# 5）编译，见 CONTRIBUTING.md -->
+    <LangVersion>5</LangVersion>
+    <RootNamespace>EjectScope.Core</RootNamespace>
+    <AssemblyName>EjectScope.Core</AssemblyName>
+    <Deterministic>true</Deterministic>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 仅用于在没有安装 .NET Framework 4.8 Developer Pack 的机器/CI 上提供引用程序集。
+         PrivateAssets=all：不参与运行时，不进入任何发布产物。 -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

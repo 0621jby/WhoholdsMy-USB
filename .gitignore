@@ -1,0 +1,14 @@
+# build output
+build/
+
+# developer scratch
+*.user
+*.suo
+.vs/
+
+# screenshots taken while debugging (docs/screenshot-*.png is committed on purpose)
+shot*.png
+
+# OS noise
+Thumbs.db
+desktop.ini

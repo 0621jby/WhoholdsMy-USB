@@ -1,0 +1,55 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # 路线 A：常规 SDK 构建
+      - name: Build with .NET SDK
+        run: |
+          dotnet build src/EjectScope.Core/EjectScope.Core.csproj -c Release --nologo
+          dotnet build src/EjectScope.Cli/EjectScope.Cli.csproj -c Release --nologo
+          dotnet build src/EjectScope.App/EjectScope.App.csproj -c Release --nologo
+
+      # 路线 B：零安装构建（系统自带 C# 5 编译器）。两条路线都必须通过，
+      # 这也顺带保证源码没有用上 C# 5 之后的语法。
+      - name: Build with in-box compiler
+        shell: pwsh
+        run: ./build.ps1
+
+      - name: Smoke test
+        shell: pwsh
+        run: |
+          ./build/ejectscope-cli.exe --list
+          ./build/ejectscope-cli.exe --selftest
+
+      - name: Checksums
+        shell: pwsh
+        run: |
+          Get-ChildItem build/*.exe |
+            ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } |
+            Set-Content -Encoding ascii build/SHA256SUMS.txt
+          Get-Content build/SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ejectscope-binaries
+          path: |
+            build/EjectScope.exe
+            build/ejectscope-cli.exe
+            build/SHA256SUMS.txt
